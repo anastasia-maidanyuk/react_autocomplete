@@ -2,7 +2,13 @@ import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import './App.scss';
 import { peopleFromServer, Person } from './data/people';
 
-export const App: React.FC = () => {
+// Тип пропсів для дебаунсу
+interface AppProps {
+  debounceDelay?: number;
+}
+
+// Дефолтне значення дебаунсу — 300ms
+export const App: React.FC<AppProps> = ({ debounceDelay = 300 }) => {
   const [query, setQuery] = useState('');
   const [filteredPeople, setFilteredPeople] =
     useState<Person[]>(peopleFromServer);
@@ -13,9 +19,6 @@ export const App: React.FC = () => {
   const debounceTimerRef = useRef<number | undefined>(undefined);
   const lastQueryRef = useRef<string>('');
 
-  const debounceDelay = 300;
-
-  // Фільтрація списку
   const filterPeople = (text: string) => {
     if (!text.trim()) {
       setFilteredPeople(peopleFromServer);
@@ -32,7 +35,6 @@ export const App: React.FC = () => {
     setNoSuggestions(matches.length === 0);
   };
 
-  // Зміна тексту в інпуті
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
 
@@ -40,7 +42,7 @@ export const App: React.FC = () => {
     setIsOpen(true);
 
     if (selectedPerson) {
-      setSelectedPerson(null); // Очистити вибраного користувача при зміні тексту
+      setSelectedPerson(null);
     }
 
     if (debounceTimerRef.current) {
@@ -55,7 +57,6 @@ export const App: React.FC = () => {
     }, debounceDelay);
   };
 
-  // Показати всіх при фокусі
   const handleFocus = () => {
     setIsOpen(true);
     if (!query.trim()) {
@@ -64,14 +65,12 @@ export const App: React.FC = () => {
     }
   };
 
-  // Обрати людину зі списку
   const handleSelect = (person: Person) => {
     setQuery(person.name);
     setSelectedPerson(person);
     setIsOpen(false);
   };
 
-  // Очистити таймер при демонтажі
   useEffect(() => {
     return () => {
       clearTimeout(debounceTimerRef.current);
@@ -109,7 +108,7 @@ export const App: React.FC = () => {
               <div className="dropdown-content">
                 {filteredPeople.map(person => (
                   <div
-                    key={person.name}
+                    key={person.id} // Використовуємо унікальний id
                     className="dropdown-item"
                     data-cy="suggestion-item"
                     onClick={() => handleSelect(person)}
