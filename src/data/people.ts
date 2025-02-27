@@ -353,3 +353,4 @@ export const peopleFromServer: Person[] = [
     slug: 'jacobus-bernardus-van-brussel-1736',
   },
 ];
+export type { Person };
